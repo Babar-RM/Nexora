@@ -1,4 +1,4 @@
-﻿# rules.md — Nexora Engineering Rules
+# rules.md — Nexora Engineering Rules
 
 This document captures the engineering conventions and team norms for the Nexora project. It supplements `AGENTS.md` (project structure and agent instructions). When the two conflict, `AGENTS.md` wins for agent behaviour; this file wins for team process.
 
@@ -45,10 +45,10 @@ RFC amendments must follow §9 of this file.
 - Branch names: `feat/<short-description>`, `fix/<short-description>`, `docs/<short-description>`, `refactor/<short-description>`.
 - Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/):
   ```
-  feat(parser): parse while-loop statements
-  fix(lexer): reject non-ASCII characters (RFC-0001 §3.1)
+  feat(parser): parse during-loop statements
+  fix(lexer): reject non-ASCII characters (RFC-0001 §3.1.1)
   docs(rfcs): add RFC-0006 IR design
-  test(semantic): cover undeclared variable error E-SEM-001
+  test(semantic): cover undeclared variable error E3001
   ```
 - Commits must be atomic: one logical change. Do not bundle unrelated fixes.
 - Squash fixup commits before merging.
@@ -95,11 +95,12 @@ RFC amendments must follow §9 of this file.
 Error codes are defined in RFC-0004. Rules:
 
 - Codes are permanent. Once assigned, a code number is never reused, even if the error is removed.
-- Codes are range-partitioned by phase:
-  - `L-LEX-NNN` — Lexer errors
-  - `L-PAR-NNN` — Parser errors
-  - `L-SEM-NNN` — Semantic errors
-  - `L-RUN-NNN` — Runner errors
+- Codes are range-partitioned by phase (RFC-0004 §3.4):
+  - `E1xxx` — Lexer errors (phase "Lexical Error")
+  - `E2xxx` — Parser errors (phase "Syntax Error")
+  - `E3xxx` — Semantic errors (phase "Semantic Error")
+  - `W4xxx` — Warnings (severity "warning")
+  - `R5xxx` — Runner errors (phase "Runtime Error")
 - When adding a new error code, update RFC-0004's code table in the same PR.
 - Every error code must have exactly one test that triggers it (minimum).
 

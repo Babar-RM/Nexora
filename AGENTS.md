@@ -1,4 +1,4 @@
-﻿# AGENTS.md — Nexora (MiniLang → Python compiler)
+# AGENTS.md — Nexora (MiniLang → Python compiler)
 
 Instructions for AI coding agents (Claude Code, Cursor, Copilot, etc.) and for humans who work with them.
 **Read this file completely before changing anything.** Then read `rules.md` and the RFCs in `docs/rfcs/`.
@@ -10,7 +10,7 @@ If this file and an RFC disagree, the RFC wins. If an RFC and the code disagree,
 
 **Nexora** is a source-to-source compiler (transpiler). It reads programs written in **MiniLang**, a small custom language, validates them, and generates equivalent **Python** source code. It can optionally run the generated code and report the output.
 
-It is deliberately a *real* compiler, not a text replacer. `show` → `print` string substitution is forbidden. All translation goes through the full pipeline:
+It is deliberately a *real* compiler, not a text replacer. Keyword-to-Python substitution (e.g. `show` → `print` string replacement) is forbidden. All translation goes through the full pipeline:
 
 ```
 MiniLang source
@@ -291,46 +291,46 @@ Authoritative definition: **RFC-0001**. This is a summary only.
 
 ```
 // comment
-let age = 20;                    // type inferred: int
-let price: float = 5;            // optional annotation (int widens to float)
+make age = 20;                    // type inferred: int
+make price: float = 5;            // optional annotation (int widens to float)
 age = age + 1;                   // assignment, type must match
 
-function add(x: int, y: int): int {
-    return x + y;
+task add(x: int, y: int): int {
+    give x + y;
 }
 
-function greet(name: string) {   // no return type = void
+task greet(name: string) {   // no return type = void
     show("Hello " + name);
 }
 
-if (age >= 18 and age < 60) {
+when (age >= 18 both age < 60) {
     show("adult");
-} else if (age >= 60) {
+} otherwise when (age >= 60) {
     show("senior");
-} else {
+} otherwise {
     show("minor");
 }
 
-while (age < 25) {
+during (age < 25) {
     age = age + 1;
 }
 
 show(add(2, 3));
 ```
 
-- Types: `int`, `float`, `string`, `bool` (plus `void` for functions with no return type).
-- Keywords: `let if else while function return show true false and or not`.
-- Operators by precedence (low → high): `or`, `and`, `not`, `== !=`, `< <= > >=`, `+ -`, `* / %`, unary `-`.
-- Statements end with `;`. Blocks use `{ }`. `if`/`while` conditions use `( )` and must be `bool`.
+- Types: `int`, `float`, `string`, `bool`, `empty` (plus `void` for tasks with no return type).
+- Keywords: `make show ask when otherwise during task give yes no both either not empty stop skip`.
+- Operators by precedence (low → high): `either`, `both`, `not`, `== !=`, `< <= > >=`, `+ -`, `* / %`, unary `-`.
+- Statements end with `;`. Blocks use `{ }`. `when`/`during` conditions use `( )` and must be `bool`.
 - Statically typed, no implicit conversions except `int → float` widening.
-- No shadowing. Functions are declared at top level only.
+- No shadowing. Tasks are declared at top level only.
 
 ### Operator Precedence (low → high)
 
 ```mermaid
 flowchart TD
-    P1["1  or  (lowest precedence)"]
-    P2["2  and"]
+    P1["1  either  (lowest precedence)"]
+    P2["2  both"]
     P3["3  not  (unary prefix)"]
     P4["4  == and !=  (equality)"]
     P5["5  lt, le, gt, ge  (relational)"]
@@ -349,7 +349,7 @@ flowchart LR
     FLOAT["float"]
     STRING["string"]
     BOOL["bool"]
-    VOID["void  (function return only)"]
+    VOID["void  (task return only)"]
     ERROR["ERROR  (propagated on type error)"]
 
     INT -->|"implicit widening"| FLOAT
@@ -497,7 +497,7 @@ sequenceDiagram
 ## 12. Git and PR rules for agents
 
 - One logical change per commit; one feature or fix per PR.
-- Commit messages follow Conventional Commits: `feat(parser): parse while statements`.
+- Commit messages follow Conventional Commits: `feat(parser): parse during statements`.
 - Never force-push, rewrite shared history, or modify `main` directly.
 - Never edit an RFC whose status is **Accepted** except through an amendment section approved per `rules.md` §9.
 - Do not reformat unrelated files. Do not rename or move files without an RFC or explicit instruction.
