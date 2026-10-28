@@ -112,6 +112,7 @@ class MakeStmt(Stmt):
     declared_type: TypeRef | None
     initializer: Expr
     symbol: Symbol | None = field(default=None, compare=False, repr=False)
+    needs_widening: bool = field(default=False, compare=False, repr=False)
 
 
 @dataclass
@@ -121,6 +122,7 @@ class AssignStmt(Stmt):
     name: str
     value: Expr
     symbol: Symbol | None = field(default=None, compare=False, repr=False)
+    needs_widening: bool = field(default=False, compare=False, repr=False)
 
 
 @dataclass
@@ -145,6 +147,7 @@ class GiveStmt(Stmt):
     """Return statement from a task with optional return value."""
 
     value: Expr | None = None
+    needs_widening: bool = field(default=False, compare=False, repr=False)
 
 
 @dataclass
@@ -250,6 +253,7 @@ class CallExpr(Expr):
     callee: str
     args: list[Expr]
     symbol: Symbol | None = field(default=None, compare=False, repr=False)
+    arg_widenings: list[bool] = field(default_factory=list, compare=False, repr=False)
 
 
 # =============================================================================

@@ -17,6 +17,16 @@ from .ast_nodes import (
 from .errors import Diagnostic, DiagnosticBag, LexerError, NexoraError
 from .lexer import Lexer, tokenize
 from .parser import Parser, ParseResult, parse
+from .semantic import SemanticAnalyzer, SemanticResult, analyze
+from .symbols import (
+    FunctionType,
+    Scope,
+    ScopeKind,
+    Symbol,
+    SymbolKind,
+    SymbolTable,
+    Type,
+)
 from .tokens import Token, TokenType
 
 __all__ = [
@@ -24,6 +34,7 @@ __all__ = [
     "Diagnostic",
     "DiagnosticBag",
     "Expr",
+    "FunctionType",
     "Lexer",
     "LexerError",
     "NexoraError",
@@ -33,10 +44,19 @@ __all__ = [
     "ParseResult",
     "Parser",
     "Program",
+    "Scope",
+    "ScopeKind",
+    "SemanticAnalyzer",
+    "SemanticResult",
     "Stmt",
+    "Symbol",
+    "SymbolKind",
+    "SymbolTable",
     "TaskDecl",
     "Token",
     "TokenType",
+    "Type",
+    "analyze",
     "dump",
     "iter_children",
     "node_to_dict",
