@@ -66,7 +66,7 @@ Update this table in the same PR that changes a phase's status.
 |---|---|---|---|
 | Errors / diagnostics | `errors.py` | Implemented | RFC-0004 |
 | Tokens + Lexer | `tokens.py`, `lexer.py` | Implemented (COLON, ASCII-only amendments complete) | RFC-0001 |
-| AST nodes | `ast_nodes.py` | Not started | RFC-0003 |
+| AST nodes | `ast_nodes.py` | Implemented | RFC-0003 |
 | Parser | `parser.py` | Not started | RFC-0001, RFC-0003 |
 | Symbol table + Semantic | `symbols.py`, `semantic.py` | Not started | RFC-0005 |
 | IR (TAC) | `ir.py` | Not started | RFC-0006 (planned) |
