@@ -1,0 +1,10 @@
+// Factorial in MiniLang
+task factorial(n: int): int {
+    when (n <= 1) {
+        give 1;
+    }
+    give n * factorial(n - 1);
+}
+
+make result = factorial(5);
+show(result);
