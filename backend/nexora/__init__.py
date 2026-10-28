@@ -16,6 +16,7 @@ from .ast_nodes import (
 )
 from .errors import Diagnostic, DiagnosticBag, LexerError, NexoraError
 from .lexer import Lexer, tokenize
+from .parser import Parser, ParseResult, parse
 from .tokens import Token, TokenType
 
 __all__ = [
@@ -29,6 +30,8 @@ __all__ = [
     "Node",
     "NodeTransformer",
     "NodeVisitor",
+    "ParseResult",
+    "Parser",
     "Program",
     "Stmt",
     "TaskDecl",
@@ -37,6 +40,7 @@ __all__ = [
     "dump",
     "iter_children",
     "node_to_dict",
+    "parse",
     "tokenize",
     "validate_ast",
 ]
