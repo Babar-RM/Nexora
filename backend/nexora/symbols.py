@@ -70,6 +70,93 @@ def type_from_name(name: str) -> Type | None:
     return mapping.get(name)
 
 
+def unary_result_type(op: str, operand: Type) -> Type | None:
+    """Compute the static result type of a unary operation.
+
+    Returns Type or None if the operation is invalid.
+    """
+    if operand == Type.ERROR:
+        return Type.ERROR
+    if op == "-":
+        if is_numeric(operand):
+            return operand
+        return None
+    if op == "not":
+        if operand == Type.BOOL:
+            return Type.BOOL
+        return None
+    if op == "float":
+        if is_numeric(operand):
+            return Type.FLOAT
+        return None
+    return None
+
+
+def binary_result_type(op: str, left: Type, right: Type) -> Type | None:
+    """Compute the static result type of a binary operation per RFC-0005 §3.2.
+
+    Returns Type or None if the operation is invalid.
+    """
+    if left == Type.ERROR or right == Type.ERROR:
+        return Type.ERROR
+
+    # Arithmetic +
+    if op == "+":
+        if left == Type.INT and right == Type.INT:
+            return Type.INT
+        if is_numeric(left) and is_numeric(right):
+            return Type.FLOAT
+        if left == Type.STRING and right == Type.STRING:
+            return Type.STRING
+        return None
+
+    # Arithmetic - and *
+    if op in ("-", "*"):
+        if left == Type.INT and right == Type.INT:
+            return Type.INT
+        if is_numeric(left) and is_numeric(right):
+            return Type.FLOAT
+        return None
+
+    # Division / always yields float (RFC-0001 §3.6, RFC-0005 §3.2)
+    if op == "/":
+        if is_numeric(left) and is_numeric(right):
+            return Type.FLOAT
+        return None
+
+    # Modulo %
+    if op == "%":
+        if left == Type.INT and right == Type.INT:
+            return Type.INT
+        if is_numeric(left) and is_numeric(right):
+            return Type.FLOAT
+        return None
+
+    # Relational: <, <=, >, >=
+    if op in ("<", "<=", ">", ">="):
+        if is_numeric(left) and is_numeric(right):
+            return Type.BOOL
+        if left == Type.STRING and right == Type.STRING:
+            return Type.BOOL
+        return None
+
+    # Equality: ==, !=
+    if op in ("==", "!="):
+        if is_numeric(left) and is_numeric(right):
+            return Type.BOOL
+        if left == right and left in (Type.STRING, Type.BOOL, Type.EMPTY):
+            return Type.BOOL
+        return None
+
+    # Logical: both, either
+    if op in ("both", "either"):
+        if left == Type.BOOL and right == Type.BOOL:
+            return Type.BOOL
+        return None
+
+    return None
+
+
 class ScopeKind(Enum):
     """Kinds of lexical scope in MiniLang."""
 

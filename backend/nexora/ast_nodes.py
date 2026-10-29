@@ -345,7 +345,18 @@ class NodeTransformer(NodeVisitor):
         """Walk children and replace them with transformed results."""
         match node:
             case Program(body=body):
-                node.body = [self.visit(item) for item in body]
+                new_body: list[Any] = []
+                for item in body:
+                    res = self.visit(item)
+                    if res is None:
+                        continue
+                    if isinstance(res, list):
+                        new_body.extend(res)
+                    elif isinstance(res, Block):
+                        new_body.extend(res.statements)
+                    else:
+                        new_body.append(res)
+                node.body = new_body
             case TaskDecl(params=params, return_type=return_type, body=body):
                 node.params = [self.visit(p) for p in params]
                 if return_type is not None:
@@ -356,7 +367,18 @@ class NodeTransformer(NodeVisitor):
             case TypeRef():
                 pass
             case Block(statements=statements):
-                node.statements = [self.visit(s) for s in statements]
+                new_stmts: list[Any] = []
+                for s in statements:
+                    res = self.visit(s)
+                    if res is None:
+                        continue
+                    if isinstance(res, list):
+                        new_stmts.extend(res)
+                    elif isinstance(res, Block):
+                        new_stmts.extend(res.statements)
+                    else:
+                        new_stmts.append(res)
+                node.statements = new_stmts
             case MakeStmt(declared_type=declared_type, initializer=initializer):
                 if declared_type is not None:
                     node.declared_type = self.visit(declared_type)
@@ -639,3 +661,357 @@ def validate_ast(program: Program) -> list[str]:
         check_node(top_level_item, in_program_root=True)
 
     return violations
+
+
+# =============================================================================
+# Tree Cloning and Unparsing (RFC-0003 Addendum / RFC-0007 §3.1)
+# =============================================================================
+
+
+def clone_tree(node: Any) -> Any:
+    """Recursively clone an AST node, creating a deep structural copy while sharing annotations.
+
+    Per RFC-0007 §3.1: copies nodes but shares annotation objects (`type`, `symbol`).
+    """
+    match node:
+        case Program(body=body, line=line, column=column):
+            return Program(
+                body=[clone_tree(item) for item in body],
+                line=line,
+                column=column,
+            )
+        case TaskDecl(
+            name=name,
+            params=params,
+            return_type=return_type,
+            body=body,
+            line=line,
+            column=column,
+            symbol=symbol,
+        ):
+            return TaskDecl(
+                name=name,
+                params=[clone_tree(p) for p in params],
+                return_type=(
+                    clone_tree(return_type) if return_type is not None else None
+                ),
+                body=clone_tree(body),
+                line=line,
+                column=column,
+                symbol=symbol,
+            )
+        case Param(name=name, type_ref=type_ref, line=line, column=column):
+            return Param(
+                name=name,
+                type_ref=clone_tree(type_ref),
+                line=line,
+                column=column,
+            )
+        case TypeRef(name=name, line=line, column=column):
+            return TypeRef(name=name, line=line, column=column)
+        case Block(statements=statements, line=line, column=column):
+            return Block(
+                statements=[clone_tree(s) for s in statements],
+                line=line,
+                column=column,
+            )
+        case MakeStmt(
+            name=name,
+            declared_type=declared_type,
+            initializer=initializer,
+            line=line,
+            column=column,
+            symbol=symbol,
+            needs_widening=needs_widening,
+        ):
+            return MakeStmt(
+                name=name,
+                declared_type=(
+                    clone_tree(declared_type) if declared_type is not None else None
+                ),
+                initializer=clone_tree(initializer),
+                line=line,
+                column=column,
+                symbol=symbol,
+                needs_widening=needs_widening,
+            )
+        case AssignStmt(
+            name=name,
+            value=value,
+            line=line,
+            column=column,
+            symbol=symbol,
+            needs_widening=needs_widening,
+        ):
+            return AssignStmt(
+                name=name,
+                value=clone_tree(value),
+                line=line,
+                column=column,
+                symbol=symbol,
+                needs_widening=needs_widening,
+            )
+        case WhenStmt(
+            condition=condition,
+            then_block=then_block,
+            else_branch=else_branch,
+            line=line,
+            column=column,
+        ):
+            return WhenStmt(
+                condition=clone_tree(condition),
+                then_block=clone_tree(then_block),
+                else_branch=(
+                    clone_tree(else_branch) if else_branch is not None else None
+                ),
+                line=line,
+                column=column,
+            )
+        case DuringStmt(condition=condition, body=body, line=line, column=column):
+            return DuringStmt(
+                condition=clone_tree(condition),
+                body=clone_tree(body),
+                line=line,
+                column=column,
+            )
+        case GiveStmt(
+            value=value,
+            line=line,
+            column=column,
+            needs_widening=needs_widening,
+        ):
+            return GiveStmt(
+                value=clone_tree(value) if value is not None else None,
+                line=line,
+                column=column,
+                needs_widening=needs_widening,
+            )
+        case ShowStmt(value=value, line=line, column=column):
+            return ShowStmt(
+                value=clone_tree(value),
+                line=line,
+                column=column,
+            )
+        case AskStmt(
+            name=name,
+            type_ref=type_ref,
+            line=line,
+            column=column,
+            symbol=symbol,
+        ):
+            return AskStmt(
+                name=name,
+                type_ref=clone_tree(type_ref),
+                line=line,
+                column=column,
+                symbol=symbol,
+            )
+        case StopStmt(line=line, column=column):
+            return StopStmt(line=line, column=column)
+        case SkipStmt(line=line, column=column):
+            return SkipStmt(line=line, column=column)
+        case ExprStmt(expression=expression, line=line, column=column):
+            return ExprStmt(
+                expression=clone_tree(expression),
+                line=line,
+                column=column,
+            )
+        case IntLiteral(value=value, line=line, column=column, type=typ):
+            return IntLiteral(value=value, line=line, column=column, type=typ)
+        case FloatLiteral(value=value, line=line, column=column, type=typ):
+            return FloatLiteral(value=value, line=line, column=column, type=typ)
+        case StringLiteral(value=value, line=line, column=column, type=typ):
+            return StringLiteral(value=value, line=line, column=column, type=typ)
+        case BoolLiteral(value=value, line=line, column=column, type=typ):
+            return BoolLiteral(value=value, line=line, column=column, type=typ)
+        case EmptyLiteral(line=line, column=column, type=typ):
+            return EmptyLiteral(line=line, column=column, type=typ)
+        case Identifier(name=name, line=line, column=column, type=typ, symbol=symbol):
+            return Identifier(
+                name=name, line=line, column=column, type=typ, symbol=symbol
+            )
+        case UnaryExpr(op=op, operand=operand, line=line, column=column, type=typ):
+            return UnaryExpr(
+                op=op,
+                operand=clone_tree(operand),
+                line=line,
+                column=column,
+                type=typ,
+            )
+        case BinaryExpr(
+            op=op,
+            left=left,
+            right=right,
+            line=line,
+            column=column,
+            type=typ,
+        ):
+            return BinaryExpr(
+                op=op,
+                left=clone_tree(left),
+                right=clone_tree(right),
+                line=line,
+                column=column,
+                type=typ,
+            )
+        case CallExpr(
+            callee=callee,
+            args=args,
+            line=line,
+            column=column,
+            type=typ,
+            symbol=symbol,
+            arg_widenings=arg_widenings,
+        ):
+            return CallExpr(
+                callee=callee,
+                args=[clone_tree(a) for a in args],
+                line=line,
+                column=column,
+                type=typ,
+                symbol=symbol,
+                arg_widenings=(
+                    list(arg_widenings) if arg_widenings is not None else None
+                ),
+            )
+        case _:
+            raise ValueError(f"Unknown node type for clone_tree: {type(node).__name__}")
+
+
+_OP_PREC: dict[str, int] = {
+    "either": 1,
+    "both": 2,
+    "==": 4,
+    "!=": 4,
+    "<": 5,
+    "<=": 5,
+    ">": 5,
+    ">=": 5,
+    "+": 6,
+    "-": 6,
+    "*": 7,
+    "/": 7,
+    "%": 7,
+}
+
+
+def _escape_str(val: str) -> str:
+    escaped = (
+        val.replace("\\", "\\\\")
+        .replace('"', '\\"')
+        .replace("\n", "\\n")
+        .replace("\t", "\\t")
+        .replace("\r", "\\r")
+    )
+    return f'"{escaped}"'
+
+
+def _unparse_expr(node: Expr, parent_prec: int = 0) -> str:
+    match node:
+        case IntLiteral(value=v):
+            return str(v)
+        case FloatLiteral(value=v):
+            s = str(v)
+            if "." not in s and "e" not in s and "E" not in s:
+                s += ".0"
+            return s
+        case StringLiteral(value=v):
+            return _escape_str(v)
+        case BoolLiteral(value=v):
+            return "yes" if v else "no"
+        case EmptyLiteral():
+            return "empty"
+        case Identifier(name=n):
+            return n
+        case UnaryExpr(op=op, operand=operand):
+            prec = 8 if op == "-" else 3
+            inner = _unparse_expr(operand, parent_prec=prec)
+            res = f"{op}{inner}" if op == "-" else f"{op} {inner}"
+            if prec < parent_prec:
+                return f"({res})"
+            return res
+        case BinaryExpr(op=op, left=left, right=right):
+            prec = _OP_PREC.get(op, 0)
+            left_str = _unparse_expr(left, parent_prec=prec)
+            right_str = _unparse_expr(right, parent_prec=prec + 1)
+            res = f"{left_str} {op} {right_str}"
+            if prec < parent_prec:
+                return f"({res})"
+            return res
+        case CallExpr(callee=callee, args=args):
+            args_str = ", ".join(_unparse_expr(a, 0) for a in args)
+            return f"{callee}({args_str})"
+        case _:
+            return f"<{type(node).__name__}>"
+
+
+def _unparse_block(block: Block, indent_level: int = 0) -> str:
+    if not block.statements:
+        return "{}"
+    lines = ["{"]
+    for s in block.statements:
+        lines.append(_unparse_stmt(s, indent_level + 1))
+    lines.append("    " * indent_level + "}")
+    return "\n".join(lines)
+
+
+def _unparse_stmt(node: Stmt | TaskDecl, indent_level: int = 0) -> str:
+    ind = "    " * indent_level
+    match node:
+        case MakeStmt(name=name, declared_type=dtype, initializer=init):
+            typ = f": {dtype.name}" if dtype is not None else ""
+            return f"{ind}make {name}{typ} = {_unparse_expr(init)};"
+        case AssignStmt(name=name, value=val):
+            return f"{ind}{name} = {_unparse_expr(val)};"
+        case AskStmt(name=name, type_ref=tref):
+            return f"{ind}ask {name}: {tref.name};"
+        case ShowStmt(value=val):
+            return f"{ind}show({_unparse_expr(val)});"
+        case GiveStmt(value=val):
+            if val is not None:
+                return f"{ind}give {_unparse_expr(val)};"
+            return f"{ind}give;"
+        case StopStmt():
+            return f"{ind}stop;"
+        case SkipStmt():
+            return f"{ind}skip;"
+        case ExprStmt(expression=expr):
+            return f"{ind}{_unparse_expr(expr)};"
+        case WhenStmt(condition=cond, then_block=then_b, else_branch=else_b):
+            cond_str = _unparse_expr(cond)
+            res = f"{ind}when ({cond_str}) {_unparse_block(then_b, indent_level)}"
+            if else_b is not None:
+                if isinstance(else_b, WhenStmt):
+                    sub_when = _unparse_stmt(else_b, 0)
+                    res += f" otherwise {sub_when.lstrip()}"
+                elif isinstance(else_b, Block):
+                    res += f" otherwise {_unparse_block(else_b, indent_level)}"
+            return res
+        case DuringStmt(condition=cond, body=body):
+            cond_str = _unparse_expr(cond)
+            return f"{ind}during ({cond_str}) {_unparse_block(body, indent_level)}"
+        case TaskDecl(name=name, params=params, return_type=ret_type, body=body):
+            params_str = ", ".join(f"{p.name}: {p.type_ref.name}" for p in params)
+            ret_str = f": {ret_type.name}" if ret_type is not None else ""
+            return f"{ind}task {name}({params_str}){ret_str} {_unparse_block(body, indent_level)}"
+        case Block():
+            return f"{ind}{_unparse_block(node, indent_level)}"
+        case _:
+            return f"{ind}/* {type(node).__name__} */"
+
+
+def unparse(node: Node) -> str:
+    """Format an AST node back into MiniLang source code representation."""
+    if isinstance(node, Expr):
+        return _unparse_expr(node, 0)
+    if isinstance(node, Program):
+        return "\n".join(_unparse_stmt(item, 0) for item in node.body)
+    if isinstance(node, Block):
+        return _unparse_block(node, 0)
+    if isinstance(node, (Stmt, TaskDecl)):
+        return _unparse_stmt(node, 0)
+    if isinstance(node, TypeRef):
+        return node.name
+    if isinstance(node, Param):
+        return f"{node.name}: {node.type_ref.name}"
+    return f"/* {type(node).__name__} */"
