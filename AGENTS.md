@@ -69,7 +69,7 @@ Update this table in the same PR that changes a phase's status.
 | AST nodes | `ast_nodes.py` | Implemented | RFC-0003 |
 | Parser | `parser.py` | Implemented | RFC-0001, RFC-0003 |
 | Symbol table + Semantic | `symbols.py`, `semantic.py` | Implemented | RFC-0005 |
-| IR (TAC) | `ir.py` | Not started | RFC-0006 (planned) |
+| IR (TAC) | `ir.py` | Implemented | RFC-0006 |
 | Optimizer | `optimizer.py` | Not started | RFC-0007 (planned) |
 | Python codegen | `codegen_python.py` | Not started | RFC-0008 (planned) |
 | Runner + API | `runner.py`, `api.py` | Not started | RFC-0009 (planned) |
