@@ -63,6 +63,17 @@ from .optimizer import (
     optimize_tac,
 )
 from .parser import Parser, ParseResult, parse
+from .pipeline import (
+    ALL_PHASES,
+    CompileOptions,
+    CompileResult,
+    compile_source,
+)
+from .runner import (
+    RunOptions,
+    RunResult,
+    run_python,
+)
 from .semantic import SemanticAnalyzer, SemanticResult, analyze
 from .symbols import (
     FunctionType,
@@ -78,12 +89,15 @@ from .symbols import (
 from .tokens import Token, TokenType
 
 __all__ = [
+    "ALL_PHASES",
     "CFG",
     "Ask",
     "BasicBlock",
     "BinOp",
     "Block",
     "Call",
+    "CompileOptions",
+    "CompileResult",
     "Const",
     "Copy",
     "Diagnostic",
@@ -114,6 +128,8 @@ __all__ = [
     "Program",
     "PythonGenerator",
     "Return",
+    "RunOptions",
+    "RunResult",
     "Scope",
     "ScopeKind",
     "SemanticAnalyzer",
@@ -135,6 +151,7 @@ __all__ = [
     "build_all_cfgs",
     "build_cfg",
     "clone_tree",
+    "compile_source",
     "dump",
     "flatten_cfg",
     "fold_binary",
@@ -146,6 +163,7 @@ __all__ = [
     "optimize_program",
     "optimize_tac",
     "parse",
+    "run_python",
     "tac_to_dict",
     "tokenize",
     "unary_result_type",

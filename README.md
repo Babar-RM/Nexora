@@ -155,7 +155,12 @@ Nexora/
     │   ├── semantic.py        # 2-Pass Semantic Analyzer & Type Checker
     │   ├── ir.py              # TAC instruction set, CFG builder, TAC VM
     │   ├── optimizer.py       # AST & TAC optimization passes
-    │   └── codegen_python.py  # Python 3.10+ Code Generator & AST Whitelist
+    │   ├── codegen_python.py  # Python 3.10+ Code Generator & AST Whitelist
+    │   ├── runner.py          # Sandboxed Python execution & runtime error mapping
+    │   └── pipeline.py        # Public orchestrator: compile_source entry point
+    ├── api.py                 # FastAPI HTTP API (/health, /compile, /examples, /language)
+    ├── main.py                # Command-Line Interface (CLI with --emit, --run, --json)
+    ├── examples/              # Sample MiniLang programs (hello, factorial, fibonacci)
     ├── tests/
     │   ├── fixtures/          # Valid and invalid MiniLang test programs
     │   ├── golden/            # Expected Python code generation files
@@ -166,8 +171,12 @@ Nexora/
     │   ├── test_semantic.py   # Type checking and diagnostic tests
     │   ├── test_ir.py         # TAC lowering, CFG, and TAC VM tests
     │   ├── test_optimizer.py  # Constant folding, DCE, and TAC optimization tests
-    │   └── test_codegen.py    # Python transpilation, line map, whitelist tests
-    └── requirements.txt       # Tooling and test dependencies (pytest, ruff)
+    │   ├── test_codegen.py    # Python transpilation, line map, whitelist tests
+    │   ├── test_runner.py     # Subprocess runner sandbox & runtime error tests
+    │   ├── test_pipeline.py   # Full compilation pipeline orchestrator tests
+    │   ├── test_cli.py        # CLI argument parsing, I/O, exit code tests
+    │   └── test_api.py        # FastAPI endpoint integration & rate limiting tests
+    └── requirements.txt       # Tooling, test, and API dependencies (pytest, ruff, fastapi, uvicorn, httpx)
 ```
 
 ---
