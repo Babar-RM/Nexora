@@ -9,9 +9,11 @@ from .ast_nodes import (
     Program,
     Stmt,
     TaskDecl,
+    clone_tree,
     dump,
     iter_children,
     node_to_dict,
+    unparse,
     validate_ast,
 )
 from .errors import Diagnostic, DiagnosticBag, LexerError, NexoraError
@@ -46,6 +48,14 @@ from .ir import (
     validate_tac,
 )
 from .lexer import Lexer, tokenize
+from .optimizer import (
+    OptimizationNote,
+    OptimizationReport,
+    fold_binary,
+    fold_unary,
+    optimize_program,
+    optimize_tac,
+)
 from .parser import Parser, ParseResult, parse
 from .semantic import SemanticAnalyzer, SemanticResult, analyze
 from .symbols import (
@@ -56,6 +66,8 @@ from .symbols import (
     SymbolKind,
     SymbolTable,
     Type,
+    binary_result_type,
+    unary_result_type,
 )
 from .tokens import Token, TokenType
 
@@ -86,6 +98,8 @@ __all__ = [
     "NodeTransformer",
     "NodeVisitor",
     "Operand",
+    "OptimizationNote",
+    "OptimizationReport",
     "Param",
     "ParseResult",
     "Parser",
@@ -109,16 +123,24 @@ __all__ = [
     "UnOp",
     "Var",
     "analyze",
+    "binary_result_type",
     "build_all_cfgs",
     "build_cfg",
+    "clone_tree",
     "dump",
     "flatten_cfg",
+    "fold_binary",
+    "fold_unary",
     "format_tac",
     "iter_children",
     "node_to_dict",
+    "optimize_program",
+    "optimize_tac",
     "parse",
     "tac_to_dict",
     "tokenize",
+    "unary_result_type",
+    "unparse",
     "validate_ast",
     "validate_tac",
 ]

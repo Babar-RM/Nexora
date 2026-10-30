@@ -70,7 +70,7 @@ Update this table in the same PR that changes a phase's status.
 | Parser | `parser.py` | Implemented | RFC-0001, RFC-0003 |
 | Symbol table + Semantic | `symbols.py`, `semantic.py` | Implemented | RFC-0005 |
 | IR (TAC) | `ir.py` | Implemented | RFC-0006 |
-| Optimizer | `optimizer.py` | Not started | RFC-0007 (planned) |
+| Optimizer | `optimizer.py` | Implemented | RFC-0007 |
 | Python codegen | `codegen_python.py` | Not started | RFC-0008 (planned) |
 | Runner + API | `runner.py`, `api.py` | Not started | RFC-0009 (planned) |
 | Frontend | `frontend/` | Not started | RFC-0010 (planned) |

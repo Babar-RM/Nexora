@@ -44,6 +44,7 @@ from .symbols import (
     SymbolKind,
     SymbolTable,
     Type,
+    binary_result_type,
     is_assignable,
     is_numeric,
     type_from_name,
@@ -729,61 +730,7 @@ class SemanticAnalyzer(NodeVisitor):
 
     def _check_binary_op(self, op: str, left: Type, right: Type) -> Type | None:
         """Match operand types against operator rules."""
-        # Arithmetic +
-        if op == "+":
-            if left == Type.INT and right == Type.INT:
-                return Type.INT
-            if is_numeric(left) and is_numeric(right):
-                return Type.FLOAT
-            if left == Type.STRING and right == Type.STRING:
-                return Type.STRING
-            return None
-
-        # Arithmetic - and *
-        if op in ("-", "*"):
-            if left == Type.INT and right == Type.INT:
-                return Type.INT
-            if is_numeric(left) and is_numeric(right):
-                return Type.FLOAT
-            return None
-
-        # Division / always yields float (RFC-0001 §3.6, RFC-0005 §3.2)
-        if op == "/":
-            if is_numeric(left) and is_numeric(right):
-                return Type.FLOAT
-            return None
-
-        # Modulo %
-        if op == "%":
-            if left == Type.INT and right == Type.INT:
-                return Type.INT
-            if is_numeric(left) and is_numeric(right):
-                return Type.FLOAT
-            return None
-
-        # Relational < <= > >=
-        if op in ("<", "<=", ">", ">="):
-            if is_numeric(left) and is_numeric(right):
-                return Type.BOOL
-            if left == Type.STRING and right == Type.STRING:
-                return Type.BOOL
-            return None
-
-        # Equality == !=
-        if op in ("==", "!="):
-            if is_numeric(left) and is_numeric(right):
-                return Type.BOOL
-            if left == right and left in (Type.STRING, Type.BOOL, Type.EMPTY):
-                return Type.BOOL
-            return None
-
-        # Logical both, either
-        if op in ("both", "either"):
-            if left == Type.BOOL and right == Type.BOOL:
-                return Type.BOOL
-            return None
-
-        return None
+        return binary_result_type(op, left, right)
 
     def visit_CallExpr(self, node: CallExpr) -> Type:
         """Type-check task call, argument counts, and argument types (E3001, E3006, E3007, E3008)."""
