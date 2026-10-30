@@ -71,7 +71,7 @@ Update this table in the same PR that changes a phase's status.
 | Symbol table + Semantic | `symbols.py`, `semantic.py` | Implemented | RFC-0005 |
 | IR (TAC) | `ir.py` | Implemented | RFC-0006 |
 | Optimizer | `optimizer.py` | Implemented | RFC-0007 |
-| Python codegen | `codegen_python.py` | Not started | RFC-0008 (planned) |
+| Python codegen | `codegen_python.py` | Implemented | RFC-0008 |
 | Runner + API | `runner.py`, `api.py` | Not started | RFC-0009 (planned) |
 | Frontend | `frontend/` | Not started | RFC-0010 (planned) |
 

@@ -16,6 +16,12 @@ from .ast_nodes import (
     unparse,
     validate_ast,
 )
+from .codegen_python import (
+    GeneratedCode,
+    PythonGenerator,
+    generate_python,
+    validate_generated_python,
+)
 from .errors import Diagnostic, DiagnosticBag, LexerError, NexoraError
 from .ir import (
     CFG,
@@ -86,6 +92,7 @@ __all__ = [
     "FuncBegin",
     "FuncEnd",
     "FunctionType",
+    "GeneratedCode",
     "Goto",
     "IRGenerator",
     "IfFalse",
@@ -105,6 +112,7 @@ __all__ = [
     "Parser",
     "Print",
     "Program",
+    "PythonGenerator",
     "Return",
     "Scope",
     "ScopeKind",
@@ -132,6 +140,7 @@ __all__ = [
     "fold_binary",
     "fold_unary",
     "format_tac",
+    "generate_python",
     "iter_children",
     "node_to_dict",
     "optimize_program",
@@ -142,5 +151,6 @@ __all__ = [
     "unary_result_type",
     "unparse",
     "validate_ast",
+    "validate_generated_python",
     "validate_tac",
 ]
