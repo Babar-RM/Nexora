@@ -1,0 +1,9 @@
+// Fibonacci sequence calculation
+task fib(n: int): int {
+    when (n <= 1) {
+        give n;
+    }
+    give fib(n - 1) + fib(n - 2);
+}
+
+show(fib(7));

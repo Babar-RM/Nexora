@@ -1,0 +1,12 @@
+// Control flow and loops demo
+make count = 0;
+make sum = 0;
+
+during (count < 10) {
+    count = count + 1;
+    when (count % 2 == 0) {
+        sum = sum + count;
+    }
+}
+
+show(sum);

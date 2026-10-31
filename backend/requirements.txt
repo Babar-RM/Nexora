@@ -1,2 +1,5 @@
 pytest
 ruff
+fastapi>=0.110.0  # HTTP API framework for web frontend integration (RFC-0009 §3.3)
+uvicorn[standard]>=0.28.0  # ASGI production server for FastAPI service (RFC-0009 §3.3)
+httpx>=0.27.0  # HTTP test client for testing FastAPI endpoints (RFC-0009 §7)
