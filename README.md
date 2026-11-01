@@ -4,11 +4,12 @@
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![Compiler-Core](https://img.shields.io/badge/dependencies-std--lib--only-success)](#)
 [![Code-Style](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
-[![Tests](https://img.shields.io/badge/tests-174%20passed-brightgreen)](#)
+[![Tests](https://img.shields.io/badge/tests-205%20backend%20%7C%2018%20frontend%20passed-brightgreen)](#)
+[![Frontend](https://img.shields.io/badge/frontend-React%2018%20%2B%20Vite%20%2B%20Monaco-61dafb)](#)
 
 **Nexora** is a high-assurance source-to-source compiler (transpiler) that translates programs written in **MiniLang**, a custom statically-typed programming language, into clean, idiomatic **Python 3.10+** code.
 
-It is deliberately engineered as a *real* compiler rather than a regex or macro replacer. Keyword-to-Python textual substitution is strictly forbidden. Translation traverses an isolated, formal multi-stage compilation pipeline built entirely on standard library fundamentals.
+It is deliberately engineered as a *real* compiler rather than a regex or macro replacer. Keyword-to-Python textual substitution is strictly forbidden. Translation traverses an isolated, formal multi-stage compilation pipeline built entirely on standard library fundamentals, paired with a web-based code playground and compiler visualizer.
 
 ---
 
@@ -53,6 +54,10 @@ MiniLang source (.mini)
   ▼
 [7] Sandboxed Runner (runner.py) & Public Pipeline (pipeline.py)
       • Subprocess execution with strict timeouts, memory isolation, and no network access
+  │
+  ▼
+[8] Web Application Visualizer & Playground (frontend/)
+      • Monaco Editor with live diagnostics, cross-highlighting, and real-time inspector panels
 ```
 
 ---
@@ -71,8 +76,8 @@ Nexora is designed under formal RFC specifications located in `docs/rfcs/`.
 | **Three-Address Code (TAC) & CFG** | `nexora/ir.py` | ✅ Implemented | RFC-0006 |
 | **Dual-Level Optimizer** | `nexora/optimizer.py` | ✅ Implemented | RFC-0007 |
 | **Python 3.10+ Code Generator** | `nexora/codegen_python.py` | ✅ Implemented | RFC-0008 |
-| **Sandboxed Runner & Pipeline API** | `nexora/runner.py`, `api.py` | ⏳ Planned | RFC-0009 |
-| **Web Frontend & Compiler Visualizer** | `frontend/` (React + Vite) | ⏳ Planned | RFC-0010 |
+| **Sandboxed Runner & Pipeline API** | `nexora/runner.py`, `api.py` | ✅ Implemented | RFC-0009 |
+| **Web Frontend & Compiler Visualizer** | `frontend/` (React + Vite) | ✅ Implemented | RFC-0010 |
 
 ---
 
@@ -143,49 +148,62 @@ Nexora/
 ├── README.md                  # Project overview, architecture, and guides
 ├── docs/
 │   └── rfcs/                  # Architectural design documents (RFC-0001 - RFC-0010)
-└── backend/
-    ├── nexora/                # Compiler package (Zero external dependencies)
-    │   ├── __init__.py        # Public module exports
-    │   ├── errors.py          # DiagnosticBag, NexoraError, code definitions
-    │   ├── tokens.py          # TokenType enum and Token dataclass
-    │   ├── lexer.py           # Hand-written Lexer
-    │   ├── ast_nodes.py       # AST node hierarchy, clone_tree, unparse
-    │   ├── parser.py          # Hand-written Recursive-Descent Parser
-    │   ├── symbols.py         # Symbol, Scope, SymbolTable, Type system
-    │   ├── semantic.py        # 2-Pass Semantic Analyzer & Type Checker
-    │   ├── ir.py              # TAC instruction set, CFG builder, TAC VM
-    │   ├── optimizer.py       # AST & TAC optimization passes
-    │   ├── codegen_python.py  # Python 3.10+ Code Generator & AST Whitelist
-    │   ├── runner.py          # Sandboxed Python execution & runtime error mapping
-    │   └── pipeline.py        # Public orchestrator: compile_source entry point
-    ├── api.py                 # FastAPI HTTP API (/health, /compile, /examples, /language)
-    ├── main.py                # Command-Line Interface (CLI with --emit, --run, --json)
-    ├── examples/              # Sample MiniLang programs (hello, factorial, fibonacci)
-    ├── tests/
-    │   ├── fixtures/          # Valid and invalid MiniLang test programs
-    │   ├── golden/            # Expected Python code generation files
-    │   ├── helpers/           # Reference TAC VM interpreter for differential tests
-    │   ├── test_lexer.py      # Lexer test suite
-    │   ├── test_ast.py        # AST invariants and visitor test suite
-    │   ├── test_parser.py     # Parser precedence, associativity, recovery tests
-    │   ├── test_semantic.py   # Type checking and diagnostic tests
-    │   ├── test_ir.py         # TAC lowering, CFG, and TAC VM tests
-    │   ├── test_optimizer.py  # Constant folding, DCE, and TAC optimization tests
-    │   ├── test_codegen.py    # Python transpilation, line map, whitelist tests
-    │   ├── test_runner.py     # Subprocess runner sandbox & runtime error tests
-    │   ├── test_pipeline.py   # Full compilation pipeline orchestrator tests
-    │   ├── test_cli.py        # CLI argument parsing, I/O, exit code tests
-    │   └── test_api.py        # FastAPI endpoint integration & rate limiting tests
-    └── requirements.txt       # Tooling, test, and API dependencies (pytest, ruff, fastapi, uvicorn, httpx)
+├── backend/
+│   ├── nexora/                # Compiler package (Zero external dependencies)
+│   │   ├── __init__.py        # Public module exports
+│   │   ├── errors.py          # DiagnosticBag, NexoraError, code definitions
+│   │   ├── tokens.py          # TokenType enum and Token dataclass
+│   │   ├── lexer.py           # Hand-written Lexer
+│   │   ├── ast_nodes.py       # AST node hierarchy, clone_tree, unparse
+│   │   ├── parser.py          # Hand-written Recursive-Descent Parser
+│   │   ├── symbols.py         # Symbol, Scope, SymbolTable, Type system
+│   │   ├── semantic.py        # 2-Pass Semantic Analyzer & Type Checker
+│   │   ├── ir.py              # TAC instruction set, CFG builder, TAC VM
+│   │   ├── optimizer.py       # AST & TAC optimization passes
+│   │   ├── codegen_python.py  # Python 3.10+ Code Generator & AST Whitelist
+│   │   ├── runner.py          # Sandboxed Python execution & runtime error mapping
+│   │   └── pipeline.py        # Public orchestrator: compile_source entry point
+│   ├── api.py                 # FastAPI HTTP API (/health, /compile, /examples, /language)
+│   ├── main.py                # Command-Line Interface (CLI with --emit, --run, --json)
+│   ├── examples/              # Sample MiniLang programs (hello, factorial, fibonacci)
+│   ├── tests/
+│   │   ├── fixtures/          # Valid and invalid MiniLang test programs
+│   │   ├── golden/            # Expected Python code generation files
+│   │   ├── helpers/           # Reference TAC VM interpreter for differential tests
+│   │   ├── test_lexer.py      # Lexer test suite
+│   │   ├── test_ast.py        # AST invariants and visitor test suite
+│   │   ├── test_parser.py     # Parser precedence, associativity, recovery tests
+│   │   ├── test_semantic.py   # Type checking and diagnostic tests
+│   │   ├── test_ir.py         # TAC lowering, CFG, and TAC VM tests
+│   │   ├── test_optimizer.py  # Constant folding, DCE, and TAC optimization tests
+│   │   ├── test_codegen.py    # Python transpilation, line map, whitelist tests
+│   │   ├── test_runner.py     # Subprocess runner sandbox & runtime error tests
+│   │   ├── test_pipeline.py   # Full compilation pipeline orchestrator tests
+│   │   ├── test_cli.py        # CLI argument parsing, I/O, exit code tests
+│   │   └── test_api.py        # FastAPI endpoint integration & rate limiting tests
+│   └── requirements.txt       # Tooling, test, and API dependencies
+└── frontend/                  # React 18 + TypeScript + Vite + Tailwind CSS Visualizer
+    ├── src/
+    │   ├── api/               # API client & OpenAPI schema interfaces
+    │   ├── store/             # Zustand state store with persistence & URL share hashing
+    │   ├── editor/            # Monaco Editor, dynamic Monarch highlighter, markers, themes
+    │   ├── panels/            # Output, Python, Tokens, AST, Symbols, TAC, CFG, Optimization, Problems
+    │   ├── components/        # Toolbar, Tabs, StatusBar, ErrorBoundary, HelpModal
+    │   ├── lib/               # Share link encoding, debounce, utils
+    │   └── test/              # Vitest unit & component test suite
+    ├── index.html
+    ├── vite.config.ts
+    ├── tailwind.config.ts
+    └── package.json
 ```
 
 ---
 
 ## 5. Development & Testing Setup
 
-Nexora is written for **Python 3.10+**. The compiler core contains **zero external dependencies** (standard library only).
+Nexora is written for **Python 3.10+** (backend) and **Node.js 18+** (frontend).
 
-### One-Time Environment Setup
+### 1. Backend Setup & Tests
 
 From the `backend/` directory:
 
@@ -201,43 +219,52 @@ source venv/bin/activate
 
 # Install development & test dependencies
 pip install -r requirements.txt
-```
 
-### Running Test Suites
-
-```bash
-# Run all tests (174 tests passing)
+# Run all backend unit and integration tests (205 tests passing)
 pytest -v
 
-# Run a specific phase test suite
-pytest tests/test_lexer.py -v
-pytest tests/test_parser.py -v
-pytest tests/test_semantic.py -v
-pytest tests/test_ir.py -v
-pytest tests/test_optimizer.py -v
-pytest tests/test_codegen.py -v
+# Code quality and formatting checks
+ruff check .
+ruff format --check .
 ```
 
-### Code Style & Formatting
-
-Nexora enforces strict code quality using [Ruff](https://github.com/astral-sh/ruff):
+### 2. Running the API Server
 
 ```bash
-# Check for lint errors
-ruff check .
-
-# Check formatting compliance
-ruff format --check .
-
-# Auto-format codebase
-ruff format .
+# From backend/ with venv activated:
+uvicorn api:app --reload --port 8000
 ```
+Verify the API is healthy by visiting `http://localhost:8000/api/v1/health`.
+
+### 3. Frontend Setup & Web Visualizer
+
+From the `frontend/` directory:
+
+```bash
+# Install dependencies
+npm install
+
+# Run frontend tests (18 tests passing)
+npm run test
+
+# Type-check TypeScript
+npm run typecheck
+
+# Build production bundle (79.15 kB gzipped)
+npm run build
+
+# Start local development playground
+npm run dev
+```
+
+Navigate to **`http://localhost:5173`** in your browser to interact with the Monaco editor and the live compiler visualizer.
 
 ---
 
 ## 6. Security & Safety Principles
 
-1. **Subprocess Isolation**: Generated Python code is never executed in-process with `eval()` or `exec()`. Execution runs in a sandboxed `python -I` isolated subprocess.
+1. **Subprocess Isolation**: Generated Python code is never executed in-process with `eval()` or `exec()`. Execution runs in a sandboxed `python -I` isolated subprocess with strict memory, CPU, and wall-clock limits (default 5.0 s).
 2. **AST Whitelist Validation**: Generated Python code is parsed via Python's `ast` module and verified against a strict whitelist. Nodes such as `Import`, `ImportFrom`, `Attribute`, `Exec`, `Try`, `Lambda`, or direct OS system access are strictly rejected before execution.
 3. **Never-Fold Guarantee**: The optimizer never evaluates or folds operations that could raise runtime errors (e.g. division by zero `1 / 0`, non-finite floats `inf`/`nan`, or integer bit lengths > 10,000 bits), ensuring runtime error semantics are preserved exactly.
 4. **Deterministic Line Mapping**: Line maps maintain direct 1-to-1 correspondence between generated Python instructions and source MiniLang lines, allowing runtime exceptions to be mapped back accurately to the user's source code without exposing Python tracebacks.
+5. **Client-Side Safety**: Web visualizer strictly avoids `dangerouslySetInnerHTML`, treats URL hash source input as untrusted, and sandboxes AST and execution output.
