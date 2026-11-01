@@ -73,7 +73,7 @@ Update this table in the same PR that changes a phase's status.
 | Optimizer | `optimizer.py` | Implemented | RFC-0007 |
 | Python codegen | `codegen_python.py` | Implemented | RFC-0008 |
 | Runner + API | `runner.py`, `pipeline.py`, `main.py`, `api.py` | Implemented | RFC-0009 |
-| Frontend | `frontend/` | Not started | RFC-0010 (planned) |
+| Frontend | `frontend/` | Implemented | RFC-0010 |
 
 Never describe a feature as "implemented" anywhere (README, portfolio, UI) until it is built **and** tested.
 
