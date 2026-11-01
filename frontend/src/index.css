@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Light theme tokens */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+
+  --accent-primary: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-active: #3730a3;
+  --accent-text: #ffffff;
+
+  --error-color: #ef4444;
+  --error-bg: #fef2f2;
+  --error-border: #fecaca;
+
+  --warning-color: #f59e0b;
+  --warning-bg: #fffbeb;
+  --warning-border: #fde68a;
+
+  --success-color: #10b981;
+  --success-bg: #ecfdf5;
+
+  --editor-bg: #ffffff;
+  --gutter-bg: #f8fafc;
+}
+
+.dark {
+  /* Dark theme tokens */
+  --bg-primary: #0b0f19;
+  --bg-secondary: #111827;
+  --bg-tertiary: #1f2937;
+  --text-primary: #f9fafb;
+  --text-muted: #9ca3af;
+  --border-color: #242f42;
+
+  --accent-primary: #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-active: #4338ca;
+  --accent-text: #ffffff;
+
+  --error-color: #f87171;
+  --error-bg: #451a1a;
+  --error-border: #7f1d1d;
+
+  --warning-color: #fbbf24;
+  --warning-bg: #422006;
+  --warning-border: #78350f;
+
+  --success-color: #34d399;
+  --success-bg: #064e3b;
+
+  --editor-bg: #0b0f19;
+  --gutter-bg: #111827;
+}
+
+/* Base resets & scrollbars */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Resizable panel handle styles */
+.resize-handle {
+  position: relative;
+  transition: background-color 0.15s ease;
+}
+
+.resize-handle:hover,
+.resize-handle[data-resize-handle-active] {
+  background-color: var(--accent-primary) !important;
+}
+
+/* Cross-highlight decoration in Monaco */
+.nexora-cross-highlight {
+  background-color: rgba(99, 102, 241, 0.22) !important;
+  border-bottom: 2px solid #6366f1 !important;
+}
+
+.dark .nexora-cross-highlight {
+  background-color: rgba(99, 102, 241, 0.35) !important;
+  border-bottom: 2px solid #818cf8 !important;
+}
