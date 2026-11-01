@@ -87,23 +87,23 @@ gantt
 
     section Foundation
     Errors / Diagnostics (errors.py)         :done,    err, 2026-01-01, 30d
-    Tokens + Lexer (tokens.py / lexer.py)    :active,  lex, 2026-01-15, 45d
+    Tokens + Lexer (tokens.py / lexer.py)    :done,    lex, 2026-01-15, 45d
 
     section Frontend Parsing
-    AST Nodes (ast_nodes.py)                 :         ast, after lex, 30d
-    Parser (parser.py)                       :         par, after ast, 45d
+    AST Nodes (ast_nodes.py)                 :done,    ast, after lex, 30d
+    Parser (parser.py)                       :done,    par, after ast, 45d
 
     section Analysis
-    Symbol Table and Semantic                :         sem, after par, 45d
+    Symbol Table and Semantic                :done,    sem, after par, 45d
 
     section Optimization and Codegen
-    IR / TAC (ir.py)                         :         ir,  after sem, 30d
-    Optimizer (optimizer.py)                 :         opt, after ir,  20d
-    Python Codegen (codegen_python.py)       :         cod, after opt, 30d
+    IR / TAC (ir.py)                         :done,    ir,  after sem, 30d
+    Optimizer (optimizer.py)                 :done,    opt, after ir,  20d
+    Python Codegen (codegen_python.py)       :done,    cod, after opt, 30d
 
     section Execution and Integration
-    Runner + API (runner.py / api.py)        :         run, after cod, 30d
-    Frontend (React + Vite)                  :         fe,  after run, 60d
+    Runner + API (runner.py / api.py)        :done,    run, after cod, 30d
+    Frontend (React + Vite)                  :done,    fe,  after run, 60d
 ```
 
 ---
@@ -187,7 +187,19 @@ nexora/
 │   │   ├── golden/            # expected generated Python
 │   │   └── test_*.py
 │   └── requirements.txt
-└── frontend/                  # built last
+└── frontend/                  # React 18 + TypeScript + Vite + Tailwind CSS visualizer
+    ├── src/
+    │   ├── api/               # schema.d.ts, client.ts
+    │   ├── store/             # useNexora.ts Zustand store
+    │   ├── editor/            # MiniLangEditor.tsx, monarch.ts, markers.ts, themes.ts
+    │   ├── panels/            # Output, Python, Tokens, AST, Symbols, TAC, CFG, Optimization, Problems
+    │   ├── components/        # Toolbar, Tabs, StatusBar, ErrorBoundary, HelpModal
+    │   ├── lib/               # share.ts, utils.ts
+    │   └── test/              # Vitest unit and panel tests
+    ├── index.html
+    ├── vite.config.ts
+    ├── tailwind.config.ts
+    └── package.json
 ```
 
 ### Module Dependency Graph
