@@ -31,17 +31,22 @@ export interface SymbolItem {
 }
 
 export interface CfgBlock {
-  id: string;
-  instructions: string[];
-  predecessors: string[];
-  successors: string[];
+  id: string | number;
+  label?: string | null;
+  instrs?: string[];
+  instructions?: string[];
+  pred?: (string | number)[];
+  predecessors?: (string | number)[];
+  succ?: (string | number)[];
+  successors?: (string | number)[];
 }
 
 export interface CfgFunction {
-  name: string;
+  function?: string;
+  name?: string;
   blocks: CfgBlock[];
-  entry: string;
-  exit: string | null;
+  entry: string | number;
+  exit?: string | number | null;
 }
 
 export interface OptimizationNote {

@@ -29,13 +29,15 @@ export const CfgPanel: React.FC = () => {
           No CFG available
         </h3>
         <p className="text-xs max-w-sm">
-          Control flow graphs are generated from Three-Address Code blocks.
+          Control flow graphs are generated from Three-Address Code blocks after semantic analysis passes without errors.
         </p>
       </div>
     );
   }
 
   const currentCfg = cfgs[selectedFuncIndex] || cfgs[0];
+  const funcName = currentCfg.function || currentCfg.name || 'Function';
+  const blocks = currentCfg.blocks || [];
 
   return (
     <div className="h-full flex flex-col overflow-hidden bg-background">
@@ -45,7 +47,7 @@ export const CfgPanel: React.FC = () => {
           <span className="font-semibold text-foreground">Control Flow Graph (CFG)</span>
           <span className="text-foreground-muted">•</span>
           <span className="text-foreground-muted">
-            {currentCfg.blocks.length} basic blocks
+            {blocks.length} basic block{blocks.length === 1 ? '' : 's'}
           </span>
         </div>
 
@@ -60,7 +62,7 @@ export const CfgPanel: React.FC = () => {
             >
               {cfgs.map((fn, idx) => (
                 <option key={idx} value={idx}>
-                  {fn.name}
+                  {fn.function || fn.name || `Function ${idx + 1}`}
                 </option>
               ))}
             </select>
@@ -71,20 +73,37 @@ export const CfgPanel: React.FC = () => {
       {/* CFG Graph Canvas / Blocks View */}
       <div className="flex-1 overflow-auto p-6 bg-background-secondary/30">
         <div className="max-w-3xl mx-auto space-y-6">
-          {currentCfg.blocks.map((block) => {
+          <div className="text-xs font-semibold text-foreground-muted flex items-center gap-2 pb-1 border-b border-border">
+            <span>Function:</span>
+            <span className="font-mono text-accent font-bold">{funcName}</span>
+          </div>
+
+          {blocks.map((block) => {
             const isEntry = block.id === currentCfg.entry;
-            const isExit = block.id === currentCfg.exit;
+            const isExit = currentCfg.exit !== undefined && currentCfg.exit !== null
+              ? block.id === currentCfg.exit
+              : false;
+
+            const instrs = block.instrs || block.instructions || [];
+            const preds = block.pred || block.predecessors || [];
+            const succs = block.succ || block.successors || [];
+
+            const blockTitle = block.label
+              ? `${block.label} (B${block.id})`
+              : typeof block.id === 'number'
+              ? `B${block.id}`
+              : String(block.id);
 
             return (
               <div
-                key={block.id}
+                key={String(block.id)}
                 className="rounded-lg border border-border bg-background shadow-sm overflow-hidden transition hover:border-accent/50"
               >
                 {/* Block Header */}
                 <div className="px-3.5 py-2 bg-background-secondary border-b border-border flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <span className="font-bold font-mono text-accent text-sm">
-                      {block.id}
+                      {blockTitle}
                     </span>
                     {isEntry && (
                       <span className="px-1.5 py-0.2 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
@@ -99,12 +118,12 @@ export const CfgPanel: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-3 text-[11px] text-foreground-muted font-mono">
-                    {block.predecessors.length > 0 && (
-                      <span>Preds: [{block.predecessors.join(', ')}]</span>
+                    {preds.length > 0 && (
+                      <span>Preds: [{preds.map((p) => `B${p}`).join(', ')}]</span>
                     )}
-                    {block.successors.length > 0 && (
-                      <span className="text-accent">
-                        Succs: [{block.successors.join(', ')}]
+                    {succs.length > 0 && (
+                      <span className="text-accent font-medium">
+                        Succs: [{succs.map((s) => `B${s}`).join(', ')}]
                       </span>
                     )}
                   </div>
@@ -112,11 +131,11 @@ export const CfgPanel: React.FC = () => {
 
                 {/* Instructions */}
                 <div className="p-3 font-mono text-xs space-y-1 bg-background">
-                  {block.instructions.length > 0 ? (
-                    block.instructions.map((instr, i) => (
+                  {instrs.length > 0 ? (
+                    instrs.map((instr, i) => (
                       <div
                         key={i}
-                        className="text-foreground pl-2 py-0.5 border-l-2 border-transparent hover:border-accent"
+                        className="text-foreground pl-2 py-0.5 border-l-2 border-transparent hover:border-accent hover:bg-accent/5 rounded-r"
                       >
                         {instr}
                       </div>
@@ -129,18 +148,18 @@ export const CfgPanel: React.FC = () => {
                 </div>
 
                 {/* Exit Connectors / Branch edges */}
-                {block.successors.length > 0 && (
+                {succs.length > 0 && (
                   <div className="px-3.5 py-1.5 bg-background-secondary/60 border-t border-border flex items-center gap-3 text-xs">
-                    <CornerDownRight className="w-3.5 h-3.5 text-foreground-muted" />
+                    <CornerDownRight className="w-3.5 h-3.5 text-foreground-muted shrink-0" />
                     <span className="text-[11px] text-foreground-muted">Flows to:</span>
-                    <div className="flex items-center gap-2">
-                      {block.successors.map((succ, sIdx) => (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {succs.map((succ, sIdx) => (
                         <div
                           key={sIdx}
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-background border border-border text-[11px] font-mono text-foreground font-semibold"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-background border border-border text-[11px] font-mono text-foreground font-semibold shadow-xs"
                         >
                           <ArrowRight className="w-3 h-3 text-accent" />
-                          <span>{succ}</span>
+                          <span>B{succ}</span>
                         </div>
                       ))}
                     </div>

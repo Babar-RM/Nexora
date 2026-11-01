@@ -6,6 +6,7 @@ import { ProblemsPanel } from '../panels/ProblemsPanel';
 import { TokensPanel } from '../panels/TokensPanel';
 import { SymbolsPanel } from '../panels/SymbolsPanel';
 import { TacPanel } from '../panels/TacPanel';
+import { CfgPanel } from '../panels/CfgPanel';
 
 describe('Inspector Panels (RFC-0010 §3.8)', () => {
   beforeEach(() => {
@@ -227,4 +228,54 @@ describe('Inspector Panels (RFC-0010 §3.8)', () => {
       expect(screen.getByText(/Optimized TAC \(2 lines\)/i)).toBeInTheDocument();
     });
   });
+
+  describe('CfgPanel', () => {
+    it('renders control flow graph blocks with backend IR format without crashing', () => {
+      useNexora.setState({
+        result: {
+          ok: true,
+          tokens: [],
+          ast: null,
+          symbols: [],
+          tac: [],
+          cfg: [
+            {
+              function: '__main__',
+              entry: 0,
+              blocks: [
+                {
+                  id: 0,
+                  label: null,
+                  instrs: ['a = 20', 'print a', 'return'],
+                  succ: [1],
+                  pred: [],
+                },
+                {
+                  id: 1,
+                  label: null,
+                  instrs: ['return'],
+                  succ: [],
+                  pred: [0],
+                },
+              ],
+            },
+          ],
+          optimized_tac: [],
+          optimization: null,
+          python: null,
+          python_line_map: null,
+          run: null,
+          diagnostics: [],
+          timings_ms: {},
+        },
+      });
+
+      render(<CfgPanel />);
+      expect(screen.getByText(/Control Flow Graph/i)).toBeInTheDocument();
+      expect(screen.getByText(/__main__/i)).toBeInTheDocument();
+      expect(screen.getByText('B0')).toBeInTheDocument();
+      expect(screen.getByText('a = 20')).toBeInTheDocument();
+    });
+  });
 });
+

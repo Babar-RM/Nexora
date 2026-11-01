@@ -5,6 +5,7 @@ import { Toolbar } from './components/Toolbar';
 import { Tabs } from './components/Tabs';
 import { StatusBar } from './components/StatusBar';
 import { ErrorBanner } from './components/ErrorBanner';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { HelpModal } from './components/HelpModal';
 import { MiniLangEditor } from './editor/MiniLangEditor';
 
@@ -36,28 +37,39 @@ export const App: React.FC = () => {
   }, [initApp]);
 
   const renderActivePanel = () => {
+    let content: React.ReactNode;
     switch (activeTab) {
       case 'output':
-        return <OutputPanel />;
+        content = <OutputPanel />;
+        break;
       case 'python':
-        return <PythonPanel />;
+        content = <PythonPanel />;
+        break;
       case 'tokens':
-        return <TokensPanel />;
+        content = <TokensPanel />;
+        break;
       case 'ast':
-        return <AstPanel />;
+        content = <AstPanel />;
+        break;
       case 'symbols':
-        return <SymbolsPanel />;
+        content = <SymbolsPanel />;
+        break;
       case 'tac':
-        return <TacPanel />;
+        content = <TacPanel />;
+        break;
       case 'cfg':
-        return <CfgPanel />;
+        content = <CfgPanel />;
+        break;
       case 'opt':
-        return <OptimizationPanel />;
+        content = <OptimizationPanel />;
+        break;
       case 'problems':
-        return <ProblemsPanel />;
+        content = <ProblemsPanel />;
+        break;
       default:
-        return <OutputPanel />;
+        content = <OutputPanel />;
     }
+    return <ErrorBoundary key={activeTab}>{content}</ErrorBoundary>;
   };
 
   return (
